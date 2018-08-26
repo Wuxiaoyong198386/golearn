@@ -18,7 +18,7 @@ import (
 
 func main() {
 	demain := "www.baidu.com"
-	ip := net.ParseIP(name)
+	ip := net.ParseIP(demain)
 	mask := ip.DefaultMask()
 
 	network := ip.Mask(mask)
