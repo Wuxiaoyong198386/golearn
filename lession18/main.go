@@ -68,7 +68,7 @@
 
 
 
-	三者之间的关系：
+	三者之间的关系及启动服务顺序：
 
  	第一步：
  	侦听本机两个端口
@@ -82,6 +82,7 @@
  	LOOKUP connecting to 127.0.0.1:4160
 	TCP: listening on [::]:4150   				//队列生产者通过此端口和nsqd建立对话
     HTTP: listening on [::] 4151
+
  	第三步：
  	通过4161的端口和第一个服务通信
  	nsqadmin --lookupd-http-address=127.0.0.1:4161
@@ -89,9 +90,14 @@
  	默认侦听4171端口,如果想改端口可以加上--http-address="127.0.0.1:9001"
  	HTTP: listening on 127.0.0.1:9001
 
-	下游消息处理
+	消息通过api处理
  	nsq_to_http --topic=sms --lookupd-http-address=127.0.0.1:4161
                 --post=http://127.0.0.1:8001/callBack/logConsumer/logConsumer
+
+	消息log文本文件存储，默认./tmp文件夹
+	nsq_to_file --topic=Jsondata --lookupd-http-address=127.0.0.1:4161 --output-dir=./tmp
+
+
 
 */
 
