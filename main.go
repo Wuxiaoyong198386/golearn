@@ -2,9 +2,19 @@ package main
 
 import "fmt"
 
+type IntSet struct {
+	name  string
+	myage int64
+}
+
+//指针接收者的方法
+func (i *IntSet) String() string {
+	return i.name
+}
+
 func main() {
 
-	var a, b int32 = 10, 20
-	var c int32 = 30
-	fmt.Println(a, b, c)
+	var s IntSet
+	s.name = "wuxiaoyong"
+	fmt.Println(s.String())
 }
