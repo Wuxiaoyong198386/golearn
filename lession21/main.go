@@ -12,6 +12,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
@@ -69,8 +70,12 @@ func main() {
 	//连接redis
 	//var pool RedisPool
 	pool, err := newPool(redisServer, redisPassword)
-	//pool.Enqueue()
+	//生成队列
+	pool.Enqueue()
+	//消费队列
 	pool.GetJob()
+	//取得队列中的长度
+	pool.GetJoblen()
 
 	//conn := pool
 	//defer conn.Close()
@@ -96,19 +101,32 @@ func main() {
 
 }
 
+//结构体中的key首字母一定要大写
 type students struct {
-	name string
-	age  int
+	Name string
+	Age  int
 }
 
 //写入redis队列
 func (r *RedisPool) Enqueue() {
 	conn := r.pool.Get()
 	defer conn.Close()
-	s1 := &students{"小明", 30}
-	s2 := &students{"小华", 40}
-	conn.Do("rpush", "students", s1)
-	conn.Do("rpush", "students", s2)
+	//var tmp_data []*students
+	s1 := students{Name: "wuxiaoyong2", Age: 30}
+	//tmp_data=append(tmp_data,&s1)
+	//fmt.Println(tmp_data)
+	//s2 := &students{"小华", 40}
+	s1json, err := json.Marshal(s1)
+	if err != nil {
+		fmt.Println("json marshal error:", err.Error())
+	}
+	//s2json,err:=json.Marshal(s2)
+	//if err!=nil{
+	//	fmt.Println("json marshal error:",err.Error())
+	//}
+	//fmt.Println(s1json)
+	conn.Do("RPUSH", "students", s1json)
+	//conn.Do("rpush", "students", s2json)
 }
 
 //读取redis队列
@@ -119,6 +137,7 @@ func (r *RedisPool) GetJob() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	fmt.Println(count)
 	for i := 0; i < count; i++ {
 		s, err := redis.String(conn.Do("LPOP", "students"))
 		if err != nil {
