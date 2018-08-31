@@ -91,8 +91,30 @@
  	HTTP: listening on 127.0.0.1:9001
 
 	消息通过api处理
+
  	nsq_to_http --topic=sms --lookupd-http-address=127.0.0.1:4161
                 --post=http://127.0.0.1:8001/callBack/logConsumer/logConsumer
+
+	post如何接数据：
+
+		buf:=make([]byte,1024)
+		n,err:=req.Body.Read(buf)
+		if err!=nil{
+			fmt.Println(err.Error())
+		}
+		fmt.Println(string(buf[0:n]))
+
+	nsq_to_http --topic=sms --lookupd-http-address=127.0.0.1:4161
+                --get=http://127.0.0.1:8001/callBack/logConsumer/logConsumer?msg=%s
+
+	get如保接数据
+
+		query:=req.URL.Query()
+		get_act:=query["msg"][0]
+		w.Write([]byte(get_act))
+		fmt.Println(get_act)
+
+
 
 	消息log文本文件存储，默认./tmp文件夹
 	nsq_to_file --topic=Jsondata --lookupd-http-address=127.0.0.1:4161 --output-dir=./tmp
