@@ -19,12 +19,8 @@ type Point struct {
 }
 
 func main(){
-	p:=new(Point)
-	p.x=20
-	p.y=30
-	fmt.Printf("%T",p)
-	//fmt.Println(p)
+	var a string
 
-	p1:=make([]int,0)
-	fmt.Printf("%T",p1)
+	a="aaaaa"
+	a.([]interface{})
 }

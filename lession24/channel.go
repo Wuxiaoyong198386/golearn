@@ -10,3 +10,42 @@
  */
 
 package main
+
+import "fmt"
+
+//func main(){
+//
+//	c:=make(chan int,3)
+//
+//	c<-1
+//	c<-2
+//	c<-3
+//	fmt.Println("a test")
+//
+//	fmt.Println(<-c)
+//	fmt.Println(<-c)
+//	fmt.Println(<-c)
+//
+//}
+
+
+func main(){
+
+	done:=make(chan struct{})
+	c:=make(chan int,3)
+
+	go func() {
+		defer close(done)
+		for v:=range c{
+			fmt.Println(v)
+		}
+	}()
+
+	c<-1
+	c<-2
+	c<-3
+	close(c)
+
+	<-done
+
+}

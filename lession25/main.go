@@ -17,6 +17,8 @@
 
  3、读取图片，根据不同的类型相对应的转为base64位
 
+ 4、base64位存为图片
+
 
 */
 
@@ -28,42 +30,95 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"io/ioutil"
+	"encoding/base64"
+	"log"
+	"path"
 )
 
 func main() {
 
-	//读取模式
+	//文本读取模式
+	/*
 	filepath := "test.txt"
-	readType := 2
+	readType := 1
 	content, err := ReadFile(filepath, readType)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(content[0])
+	fmt.Println("文件读取成功！内容如下：\n"+content[0])
 
-	//写入模式
+	//文本写入模式
 	filename:="test1.txt"
-	writeType:=1  //1:追加模式 2、替换模式
-	result,err:=WriteFile(filename,writeType)
-	if result{
-
+	writeType:=2  //1:追加模式 2、替换模式
+	filecontent:=[]byte("golang aaaa文本文件创建、写入操作\n")
+	if _,err:=WriteFile(filename,filecontent,writeType);err!=nil{
+		fmt.Println(err)
 	}
+	fmt.Println("文件写入成功！")
+	*/
+	//图片base64读取
+	filepath:="qiniu_20181024.jpg"
+	base64,err:=ImageToBase64(filepath)
+	if err!=nil{
+		fmt.Println(err)
+	}
+	fmt.Println(base64)
+	//图片base64转存图片
 
 }
 
-func WriteFile(filepath string,writerType int) (bool,error){
+func ImageToBase64(filepath string)(string,error){
 
-	//判断文件是否存在，不存在就创建
-	isExists:=IsExists(filepath)
-	if !isExists{
-		os.Create()
+	if isE:=IsExists(filepath);!isE{
+		return "",errors.New("图片文件不存在！")
 	}
+	const base64Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+	var coder = base64.NewEncoding(base64Table)
+	file, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	filenamewithsuffix:=path.Base(filepath)
+	fileSuffix:=string([]byte(path.Ext(filenamewithsuffix))[1:4])
+	return "data:image/"+fileSuffix+";base64,"+string([]byte(coder.EncodeToString(data))),nil
+}
 
+func Base64ToImage(base64 string)error{
+
+
+
+	return nil
+}
+
+
+func WriteFile(filepath string,content []byte,writerType int) (bool,error){
+	var f *os.File
+	var err error
+	//判断文件是否存在，不存在就创建
+	//isExists:=IsExists(filepath)
+
+	if writerType==1{ //追加模式
+		f, err = os.OpenFile(filepath, os.O_WRONLY|os.O_APPEND, 0666)
+	}else{  //替换模式
+		f, err = os.OpenFile(filepath, os.O_WRONLY | os.O_CREATE, 0644)
+
+	}
+	if err!=nil{
+		return false,errors.New("创建文件失败！")
+	}
+	defer f.Close()
+	if _,_err:=f.Write(content);_err!=nil{
+		return false,errors.New("文件写入失败！")
+	}
 	return true,nil
 }
 
-
+//判断文件是否存在
 func IsExists(filepath string)bool{
 	if _, err := os.Stat(filepath); err != nil {
 		if os.IsNotExist(err) {
